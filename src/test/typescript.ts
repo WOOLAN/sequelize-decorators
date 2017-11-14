@@ -86,4 +86,70 @@ describe('TypeScript', () => {
         }
     });
 
+    it('should inherit attributes from parent when @Attribute was used', () => {
+
+        const stub = sinon.stub(Model, 'init');
+
+        try {
+            class User extends Model {
+                @Attribute(DataTypes.STRING)
+                public id: string;
+            }
+
+            @Options({sequelize})
+            class User2 extends User {
+                @Attribute(DataTypes.STRING)
+                public id2: string;
+            }
+
+            const attributes = stub.args[0][0];
+
+            assert.equal(attributes.id, DataTypes.STRING);
+            assert.equal(attributes.id2, DataTypes.STRING);
+        } finally {
+
+            stub.restore();
+        }
+    });
+
+    it('should not mutate parent when inheriting attributes using @Attribute', () => {
+
+        const stub = sinon.stub(Model, 'init');
+
+        try {
+            class User extends Model {
+                @Attribute(DataTypes.STRING)
+                public id: string;
+            }
+
+            @Options({sequelize})
+            class User2 extends User {
+                @Attribute(DataTypes.STRING)
+                public id2: string;
+            }
+
+            let attributes = stub.args[0][0];
+
+            assert.equal(attributes.id, DataTypes.STRING);
+            assert.equal(attributes.id2, DataTypes.STRING);
+
+            stub.reset();
+
+            @Options({sequelize})
+            class User3 extends User {
+                @Attribute(DataTypes.STRING)
+                public id3: string;
+            }
+
+            attributes = stub.args[0][0];
+
+            assert.equal(attributes.id, DataTypes.STRING);
+            assert.equal(attributes.id2, undefined);
+            assert.equal(attributes.id3, DataTypes.STRING);
+        } finally {
+
+            stub.restore();
+        }
+    });
+
 });

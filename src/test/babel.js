@@ -59,5 +59,27 @@ describe('Babel', () => {
             stub.restore();
         }
     });
+
+    it('should inherit attributes from parent when @Attributes was used', () => {
+
+        const stub = sinon.stub(Model, 'init');
+
+        try {
+            @Attributes({id: Sequelize.STRING})
+            class User extends Model {}
+
+            @Options({sequelize})
+            @Attributes({id2: Sequelize.STRING})
+            class User2 extends User {}
+
+            let attributes = stub.args[0][0];
+
+            assert.equal(attributes.id, DataTypes.STRING);
+            assert.equal(attributes.id2, DataTypes.STRING);
+        } finally {
+
+            stub.restore();
+        }
+    });
 })
 

@@ -23,7 +23,7 @@ export function Attribute(options?: string | DataTypes.DataType | ModelAttribute
                 // enum, array, hstore, geometry, range
             }
         }
-        const attributes: ModelAttributes = Reflect.getMetadata(S_ATTRIBUTES, prototype.constructor) || {};
+        const attributes: ModelAttributes = Object.assign({}, Reflect.getMetadata(S_ATTRIBUTES, prototype.constructor) || {});
         if (options) {
             attributes[name] = options;
         }
@@ -33,6 +33,6 @@ export function Attribute(options?: string | DataTypes.DataType | ModelAttribute
 
 export function Attributes(attributes: ModelAttributes) {
     return function(model: typeof Model): void {
-        Reflect.defineMetadata(S_ATTRIBUTES, attributes, model);
+        Reflect.defineMetadata(S_ATTRIBUTES, Object.assign({}, Reflect.getMetadata(S_ATTRIBUTES, model) || {}, attributes), model);
     };
 }
